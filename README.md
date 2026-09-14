@@ -18,6 +18,7 @@ step is only needed if you want to pin the URL.)
 | Formula | Description |
 | --- | --- |
 | [pd-power-monitor](Formula/pd-power-monitor.rb) | pd-power-monitor — USB-C Power Delivery wattage and battery tray indicator (installs `power-monitor`) |
+| [microsandbox](Formula/microsandbox.rb) | microsandbox — lightweight VMs in milliseconds from SDKs (installs `msb`) |
 
 ## Available casks
 
