@@ -72,6 +72,15 @@ class Microsandbox < Formula
     chmod 0755, bin/"msb"
   end
 
+  def caveats
+    <<~EOS
+      msb has its own updater, but Homebrew owns this installation. Don't use
+      `msb self update`, `msb self downgrade` and `msb self uninstall`; these
+      the modify brew-managed files. Only use `brew upgrade microsandbox` for
+      new releases and `brew uninstall microsandbox` to remove them.
+    EOS
+  end
+
   test do
     assert_match version.to_s, shell_output("#{bin}/msb --version")
   end
