@@ -22,6 +22,9 @@ class Microsandbox < Formula
   end
 
   on_linux do
+    # msb links libcap-ng, which the release bundle does not ship.
+    depends_on "libcap-ng"
+
     on_arm do
       url "https://github.com/superradcompany/microsandbox/releases/download/v#{version}/microsandbox-linux-aarch64.tar.gz"
       sha256 "e53098e7601fddd85af7e943d4af3d4370ace276d9e863a89456338f2d076d1b"
@@ -65,10 +68,19 @@ class Microsandbox < Formula
     end
 
     bin.mkpath
-    File.write(bin/"msb", <<~SH)
-      #!/bin/bash
-      exec "#{libexec}/msb" "$@"
-    SH
+    if OS.linux?
+      # Wrap msb to ensure msb uses dependencies (libcap-ng) from Homebrew.
+      File.write(bin/"msb", <<~SH)
+        #!/bin/bash
+        export LD_LIBRARY_PATH="#{formula_opt_lib("libcap-ng")}${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+        exec "#{libexec}/msb" "$@"
+      SH
+    else
+      File.write(bin/"msb", <<~SH)
+        #!/bin/bash
+        exec "#{libexec}/msb" "$@"
+      SH
+    end
     chmod 0755, bin/"msb"
   end
 
@@ -78,6 +90,12 @@ class Microsandbox < Formula
       `msb self update`, `msb self downgrade` and `msb self uninstall`; these
       the modify brew-managed files. Only use `brew upgrade microsandbox` for
       new releases and `brew uninstall microsandbox` to remove them.
+
+      Run `msb doctor` before your first sandbox to check that this host can
+      boot one.
+
+      On Linux, the wrapper fixes the LD_LIBRARY_PATH so msb can find brew's
+      version of the libcap-ng dependency.
     EOS
   end
 
