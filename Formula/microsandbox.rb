@@ -7,8 +7,7 @@ class Microsandbox < Formula
   version "0.6.18"
   license "Apache-2.0"
 
-  # libkrunfw versioned filenames (must match the build)
-  LIBKRUNFW_VERSION = "5.2.1"
+  # libkrunfw ABI soname the release binaries load
   LIBKRUNFW_ABI = "5"
 
   on_macos do
@@ -53,10 +52,16 @@ class Microsandbox < Formula
     end
 
     if OS.linux?
-      # Tarball contains: libkrunfw.so.5.2.1
-      libexec.install "libkrunfw.so.#{LIBKRUNFW_VERSION}"
-      libexec.install_symlink libexec/"libkrunfw.so.#{LIBKRUNFW_VERSION}" => "libkrunfw.so.#{LIBKRUNFW_ABI}"
-      libexec.install_symlink libexec/"libkrunfw.so.#{LIBKRUNFW_VERSION}" => "libkrunfw.so"
+      # Tarball contains a single versioned library, e.g. libkrunfw.so.5.6.1.
+      # Borrowing the discovery process from `scripts/install.sh` to ensure msb
+      # uses the bundled version.
+      libkrunfw = Dir["libkrunfw.so.*.*.*"]
+      odie "release bundle must contain exactly one versioned libkrunfw shared library" if libkrunfw.length != 1
+      libkrunfw = libkrunfw.first
+      abi = libkrunfw.delete_prefix("libkrunfw.so.").split(".").first
+      libexec.install libkrunfw
+      libexec.install_symlink libexec/libkrunfw => "libkrunfw.so.#{abi}"
+      libexec.install_symlink libexec/libkrunfw => "libkrunfw.so"
     end
 
     bin.mkpath
