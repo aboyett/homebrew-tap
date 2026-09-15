@@ -10,14 +10,22 @@ class Microsandbox < Formula
   # libkrunfw ABI soname the release binaries load
   LIBKRUNFW_ABI = "5"
 
+  # Upstream ships a single darwin artifact, built for Apple Silicon. Homebrew needs a URL for
+  # every OS/arch combination, so use the same URL for both macOS arches.
+  DARWIN_URL = "https://github.com/superradcompany/microsandbox/releases/download/v#{version}/microsandbox-darwin-aarch64.tar.gz".freeze
+  DARWIN_SHA256 = "1e8c40859142cd38fb99b301bdb1fb4095a985a4065d080f99b3a3e7cb9a6305"
+
   on_macos do
+    depends_on arch: :arm64
+
     on_arm do
-      url "https://github.com/superradcompany/microsandbox/releases/download/v#{version}/microsandbox-darwin-aarch64.tar.gz"
-      sha256 "1e8c40859142cd38fb99b301bdb1fb4095a985a4065d080f99b3a3e7cb9a6305"
+      url DARWIN_URL
+      sha256 DARWIN_SHA256
     end
 
     on_intel do
-      odie "microsandbox requires Apple Silicon (M1+). x86_64 macOS is not supported."
+      url DARWIN_URL
+      sha256 DARWIN_SHA256
     end
   end
 
